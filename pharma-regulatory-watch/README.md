@@ -1,116 +1,116 @@
 # Pharma Regulatory Watch
 
-Aplikacja webowa do monitorowania zmian w regulacjach prawnych przemysłu farmaceutycznego dla
-firmy **Rezon Bio**. Pozwala wybrać źródła regulacyjne (FDA, EMA, MHRA, PIC/S, ICH, GIF, EDQM, USP
-itd.), okres analizy, a następnie uruchomić rewizję, która pobiera aktualną treść każdej strony,
-porównuje ją z ostatnim zapisanym snapshotem i wykorzystuje Claude (Anthropic API) do wyodrębnienia
-istotnych zmian regulacyjnych wraz z oceną prawdopodobieństwa zastosowania do Rezon Bio.
+A web application for monitoring changes in pharmaceutical industry legal regulations for
+**Rezon Bio**. It lets you pick regulatory sources (FDA, EMA, MHRA, PIC/S, ICH, GIF, EDQM, USP,
+etc.) and an analysis period, then run a revision that fetches the current content of each page,
+compares it against the last saved snapshot, and uses Claude (Anthropic API) to extract relevant
+regulatory changes along with an assessment of their probability of applicability to Rezon Bio.
 
-## Stack techniczny
+## Tech stack
 
-- **Next.js 14 (App Router) + TypeScript** — full-stack w jednym projekcie
-- **better-sqlite3** — historia snapshotów treści stron (tabela `snapshots`)
-- **Tailwind CSS** — stylowanie UI
-- **cheerio** — parsowanie HTML do czystego tekstu
-- **@anthropic-ai/sdk** — analiza treści przez Claude (`claude-sonnet-4-5`)
-- **xlsx (SheetJS)** — eksport wyników do Excela (generowany w przeglądarce)
+- **Next.js 14 (App Router) + TypeScript** — full-stack in a single project
+- **better-sqlite3** — history of page content snapshots (`snapshots` table)
+- **Tailwind CSS** — UI styling
+- **cheerio** — HTML parsing into clean text
+- **@anthropic-ai/sdk** — content analysis via Claude (`claude-sonnet-4-5`)
+- **xlsx (SheetJS)** — export of results to Excel (generated in the browser)
 
-## Instalacja
+## Installation
 
 ```bash
 cd pharma-regulatory-watch
 npm install
 ```
 
-## Konfiguracja klucza API
+## API key configuration
 
-1. Skopiuj plik `.env.local.example` do `.env.local`:
+1. Copy `.env.local.example` to `.env.local`:
 
    ```bash
    cp .env.local.example .env.local
    ```
 
-2. Wklej swój klucz Anthropic API (dostępny na [console.anthropic.com](https://console.anthropic.com)):
+2. Paste your Anthropic API key (available at [console.anthropic.com](https://console.anthropic.com)):
 
    ```
    ANTHROPIC_API_KEY=sk-ant-...
    ```
 
-`.env.local` jest w `.gitignore` — klucz nigdy nie trafi do repozytorium.
+`.env.local` is in `.gitignore` — the key will never end up in the repository.
 
-## Uruchomienie lokalne
+## Running locally
 
 ```bash
 npm run dev
 ```
 
-Aplikacja będzie dostępna pod adresem [http://localhost:3000](http://localhost:3000).
+The application will be available at [http://localhost:3000](http://localhost:3000).
 
-## Jak działa rewizja
+## How a revision works
 
-1. Zaznacz na liście źródła, które mają zostać sprawdzone (domyślnie wszystkie zaznaczone).
-   Pozycje EDQM i USP prowadzą do stron logowania (CAS) i są oznaczone etykietą
-   „wymaga logowania" — aplikacja mimo to spróbuje je pobrać.
-2. Wybierz okres analizy: ostatnie 3 miesiące, ostatni rok, lub zakres własny (od–do).
-3. Kliknij **„Zrób rewizję”**. Dla każdego zaznaczonego źródła aplikacja:
-   - pobiera aktualną treść strony po stronie serwera (Next.js API route) i redukuje HTML do
-     czystego tekstu,
-   - porównuje ją z ostatnim zapisanym snapshotem w SQLite (jeśli istnieje),
-   - wysyła obie wersje do Claude z promptem zawierającym kontekst firmy Rezon Bio i wybrany okres
-     analizy, prosząc o wyodrębnienie istotnych zmian regulacyjnych w formacie JSON,
-   - zapisuje nowy snapshot treści strony w SQLite (historia poprzednich rewizji jest zachowywana —
-     nowe wiersze są dopisywane, nic nie jest nadpisywane).
-4. Błędy pobierania lub analizy pojedynczego źródła nie przerywają całej rewizji — są zbierane w
-   sekcji „Status rewizji” jako źródła niedostępne.
-5. Wyniki pojawiają się na bieżąco w tabeli, którą można sortować po kolumnie
-   „Prawdopodobieństwo” (kliknięcie nagłówka).
-6. Przycisk **„Eksportuj do Excela”** generuje plik `.xlsx` z wynikami, datą rewizji i wybranym
-   okresem analizy.
+1. Select the sources on the list that should be checked (all are selected by default).
+   The EDQM and USP entries lead to login pages (CAS) and are flagged with a "requires login"
+   label — the app will still try to fetch them.
+2. Choose the analysis period: last 3 months, last year, or a custom range (from–to).
+3. Click **"Run Revision"**. For each selected source, the app:
+   - fetches the current page content server-side (Next.js API route) and reduces the HTML to
+     clean text,
+   - compares it against the last saved snapshot in SQLite (if one exists),
+   - sends both versions to Claude with a prompt containing the Rezon Bio company context and the
+     selected analysis period, asking it to extract relevant regulatory changes as JSON,
+   - saves a new content snapshot to SQLite (the history of previous revisions is preserved — new
+     rows are appended, nothing is overwritten).
+4. Fetch or analysis errors for a single source do not interrupt the whole revision — they are
+   collected in the "Revision status" section as unavailable sources.
+5. Results appear live in a table that can be sorted by the "Probability" column (click the
+   header).
+6. The **"Export to Excel"** button generates an `.xlsx` file with the results, the revision date,
+   and the selected analysis period.
 
-## Struktura kodu
+## Code structure
 
 ```
 src/
   app/
-    page.tsx              — główny widok (checklist, wybór okresu, wyniki, eksport)
-    api/revise/route.ts   — API route: fetch + diff + wywołanie Claude + zapis snapshotu (streaming NDJSON)
+    page.tsx              — main view (checklist, period selection, results, export)
+    api/revise/route.ts   — API route: fetch + diff + Claude call + snapshot save (NDJSON streaming)
     layout.tsx, globals.css
   components/
-    SourceChecklist.tsx    — checkboxy źródeł
-    PeriodSelector.tsx     — wybór okresu analizy
-    ResultsTable.tsx       — tabela wyników (sortowanie, kolorowe badge'e)
-    ReviseStatus.tsx       — lista źródeł, które zwróciły błąd
-    ExportButton.tsx       — eksport do Excela (SheetJS)
+    SourceChecklist.tsx    — source checkboxes
+    PeriodSelector.tsx     — analysis period selection
+    ResultsTable.tsx       — results table (sorting, colored badges)
+    ReviseStatus.tsx       — list of sources that returned an error
+    ExportButton.tsx       — export to Excel (SheetJS)
   lib/
-    sources.ts             — statyczna lista 21 monitorowanych źródeł
-    fetchPage.ts           — fetch + parsowanie HTML do czystego tekstu (cheerio), timeouty, obsługa błędów
-    anthropic.ts           — wywołania Anthropic API (prompt, parsowanie JSON)
-    db.ts                  — SQLite (better-sqlite3): historia snapshotów
-    types.ts               — współdzielone typy TypeScript
+    sources.ts             — static list of 21 monitored sources
+    fetchPage.ts           — fetch + HTML-to-clean-text parsing (cheerio), timeouts, error handling
+    anthropic.ts           — Anthropic API calls (prompt, JSON parsing)
+    db.ts                  — SQLite (better-sqlite3): snapshot history
+    types.ts               — shared TypeScript types
 ```
 
-## Wdrożenie na Vercel
+## Deploying to Vercel
 
-Kod jest napisany z myślą o Vercel (App Router, Node.js runtime dla API route), ale jedna rzecz
-wymaga uwagi: **system plików na Vercel jest tylko do odczytu poza katalogiem `/tmp`, który jest
-efemeryczny** (czyszczony między wywołaniami funkcji). Oznacza to, że SQLite w obecnej formie nie
-zachowa historii snapshotów pomiędzy kolejnymi requestami w środowisku serverless Vercel — dla
-produkcyjnego wdrożenia na Vercel zalecane jest podmienienie `src/lib/db.ts` na klienta hostowanej
-bazy danych (np. Turso/libSQL, Neon/Postgres, Vercel Postgres) — interfejs modułu
-(`getLatestSnapshot`, `saveSnapshot`, `getSnapshotHistory`) można zaimplementować analogicznie bez
-zmian w reszcie aplikacji. Do uruchomienia lokalnego (`npm run dev`) i na własnym serwerze/VPS
-better-sqlite3 działa od razu, z plikiem bazy w `./data/regulatory_watch.db`.
+The code is written with Vercel in mind (App Router, Node.js runtime for the API route), but one
+thing needs attention: **the filesystem on Vercel is read-only outside of `/tmp`, which is
+ephemeral** (wiped between function invocations). This means SQLite in its current form will not
+retain snapshot history across requests in Vercel's serverless environment — for a production
+deployment on Vercel it's recommended to swap `src/lib/db.ts` for a client of a hosted database
+(e.g. Turso/libSQL, Neon/Postgres, Vercel Postgres) — the module interface (`getLatestSnapshot`,
+`saveSnapshot`, `getSnapshotHistory`) can be reimplemented analogously without changes to the rest
+of the app. For running locally (`npm run dev`) or on your own server/VPS, better-sqlite3 works
+out of the box, with the database file at `./data/regulatory_watch.db`.
 
-Pamiętaj też o ustawieniu zmiennej środowiskowej `ANTHROPIC_API_KEY` w ustawieniach projektu na
-Vercel (Project Settings → Environment Variables) — analogicznie do `.env.local` lokalnie.
+Also remember to set the `ANTHROPIC_API_KEY` environment variable in your Vercel project settings
+(Project Settings → Environment Variables) — analogous to `.env.local` locally.
 
-## Znane ograniczenia
+## Known limitations
 
-- Niektóre strony (np. EudraGMDP, CFR Search, strony logowania EDQM/USP) są w dużym stopniu
-  generowane przez JavaScript lub wymagają sesji/logowania — serwerowy fetch pobierze tylko
-  wyjściowy HTML, co może skutkować małą ilością odczytanego tekstu lub błędem „No readable text
-  content found”. Takie źródła są zgłaszane jako niedostępne w sekcji „Status rewizji”, a rewizja
-  pozostałych źródeł przebiega normalnie.
-- Analiza opiera się na treści aktualnie wyrenderowanego HTML strony, a nie na pełnej historii
-  publikacji źródła — dla stron bez wyraźnych dat przy ogłoszeniach model ocenia zawartość na
-  podstawie tego, co jest nowe/zmienione względem poprzedniego zapisanego snapshotu.
+- Some pages (e.g. EudraGMDP, CFR Search, the EDQM/USP login pages) are heavily JavaScript-rendered
+  or require a session/login — the server-side fetch will only retrieve the initial HTML, which may
+  result in little readable text or a "No readable text content found" error. Such sources are
+  reported as unavailable in the "Revision status" section, while the rest of the revision proceeds
+  normally.
+- The analysis is based on the content of the currently rendered HTML of the page, not the full
+  publication history of the source — for pages without clear dates on announcements, the model
+  assesses content based on what is new/changed relative to the previously saved snapshot.

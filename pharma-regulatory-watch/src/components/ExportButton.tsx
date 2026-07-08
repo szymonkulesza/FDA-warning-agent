@@ -4,9 +4,9 @@ import * as XLSX from 'xlsx';
 import { PeriodSelection, RegulatoryChange } from '@/lib/types';
 
 const PROBABILITY_LABELS: Record<string, string> = {
-  high: 'Wysokie',
-  medium: 'Średnie',
-  low: 'Niskie',
+  high: 'High',
+  medium: 'Medium',
+  low: 'Low',
 };
 
 interface Props {
@@ -19,14 +19,14 @@ interface Props {
 export function ExportButton({ results, period, revisedAt, disabled }: Props) {
   const handleExport = () => {
     const rows = results.map((r) => ({
-      'Krótki opis zmiany': r.short_description,
-      Źródło: r.source,
-      'Link do źródła': r.source_url,
-      'Prawdopodobieństwo zastosowania w Rezon Bio':
+      'Short description': r.short_description,
+      Source: r.source,
+      'Source link': r.source_url,
+      'Probability of applicability to Rezon Bio':
         PROBABILITY_LABELS[r.probability] ?? r.probability,
-      Interpretacja: r.interpretation,
-      'Data rewizji': revisedAt,
-      'Okres analizy': `${period.label} (${period.from} – ${period.to})`,
+      Interpretation: r.interpretation,
+      'Revision date': revisedAt,
+      'Analysis period': `${period.label} (${period.from} – ${period.to})`,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(rows);
@@ -41,7 +41,7 @@ export function ExportButton({ results, period, revisedAt, disabled }: Props) {
     ];
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Wyniki rewizji');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Revision results');
 
     const filename = `pharma-regulatory-watch_${revisedAt.slice(0, 10)}.xlsx`;
     XLSX.writeFile(workbook, filename);
@@ -54,7 +54,7 @@ export function ExportButton({ results, period, revisedAt, disabled }: Props) {
       disabled={disabled || results.length === 0}
       className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
     >
-      Eksportuj do Excela
+      Export to Excel
     </button>
   );
 }

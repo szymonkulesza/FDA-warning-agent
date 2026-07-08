@@ -3,12 +3,12 @@ import { PeriodSelection, RegulatoryChange, RegulatorySource } from './types';
 
 const MODEL = 'claude-sonnet-4-5';
 
-const COMPANY_CONTEXT = `Rezon Bio to firma biotechnologiczno-farmaceutyczna zajmująca się produkcją
-biologicznych produktów leczniczych (biologics). Działa w reżimie eQMS/GxP (GMP, GDP, walidacja
-systemów komputerowych) i sprzedaje/rejestruje produkty na rynkach UE, Polski, USA oraz Kanady.
-Interesują ją w szczególności: zmiany w GMP dla produktów biologicznych, wymagania dotyczące
-elektronicznych zapisów/podpisów (21 CFR Part 11), inspekcje i warning lettery dotyczące produkcji
-biologicznej, biosimilary, oraz zmiany w prawie farmaceutycznym PL/UE/US/Kanada.`;
+const COMPANY_CONTEXT = `Rezon Bio is a biotechnology/pharmaceutical company that manufactures
+biological medicinal products (biologics). It operates under an eQMS/GxP regime (GMP, GDP,
+computer system validation) and sells/registers products in the EU, Poland, US, and Canada
+markets. It is particularly interested in: changes to GMP for biological products, requirements
+for electronic records/signatures (21 CFR Part 11), inspections and warning letters concerning
+biological manufacturing, biosimilars, and changes to pharmaceutical law in the EU/Poland/US/Canada.`;
 
 let client: Anthropic | null = null;
 
@@ -32,39 +32,39 @@ function buildPrompt(params: {
 }): string {
   const { source, currentText, previousText, period } = params;
 
-  return `Kontekst firmy:
+  return `Company context:
 ${COMPANY_CONTEXT}
 
-Zadanie: Przeanalizuj poniższą treść strony regulacyjnej i zidentyfikuj ISTOTNE zmiany regulacyjne
-(nowe wytyczne, aktualizacje dokumentów, ogłoszenia, warning lettery, zmiany w prawie), które mieszczą
-się w wybranym okresie analizy: ${period.label} (od ${period.from} do ${period.to}).
+Task: Analyze the following regulatory page content and identify RELEVANT regulatory changes
+(new guidance, document updates, announcements, warning letters, changes in law) that fall within
+the selected analysis period: ${period.label} (from ${period.from} to ${period.to}).
 
-Źródło: ${source.source} — ${source.area}
+Source: ${source.source} — ${source.area}
 URL: ${source.url}
 
-=== AKTUALNA TREŚĆ STRONY (tekst oczyszczony z HTML) ===
-${currentText || '(brak treści — strona mogła nie zwrócić czytelnego tekstu)'}
+=== CURRENT PAGE CONTENT (text cleaned of HTML) ===
+${currentText || '(no content — the page may not have returned readable text)'}
 
 ${
   previousText
-    ? `=== POPRZEDNIA ZAPISANA TREŚĆ (z ostatniej rewizji) ===\n${previousText}\n\nPorównaj obie wersje i zwróć uwagę przede wszystkim na to, co jest nowe lub zmienione względem poprzedniej wersji.`
-    : '=== BRAK POPRZEDNIEJ WERSJI ===\nTo pierwsza rewizja tego źródła — oceń treść strony pod kątem zmian/ogłoszeń mieszczących się w wybranym okresie analizy.'
+    ? `=== PREVIOUSLY SAVED CONTENT (from the last revision) ===\n${previousText}\n\nCompare both versions and pay particular attention to what is new or changed compared to the previous version.`
+    : '=== NO PREVIOUS VERSION ===\nThis is the first revision of this source — assess the page content for changes/announcements that fall within the selected analysis period.'
 }
 
-Zwróć WYŁĄCZNIE poprawny JSON — tablicę obiektów, bez żadnego tekstu przed ani po, bez bloków markdown.
-Każdy obiekt ma strukturę:
+Return ONLY valid JSON — an array of objects, with no text before or after, and no markdown blocks.
+Each object has the structure:
 {
-  "short_description": "krótki opis zmiany",
+  "short_description": "short description of the change",
   "source": "${source.source}",
   "source_url": "${source.url}",
   "probability": "high" | "medium" | "low",
-  "interpretation": "krótka, praktyczna interpretacja (2-4 zdania) co to może oznaczać dla Rezon Bio, lub pusty string jeśli nie da się jednoznacznie ocenić"
+  "interpretation": "a short, practical interpretation (2-4 sentences) of what this may mean for Rezon Bio, or an empty string if it cannot be clearly assessed"
 }
 
-"probability" oceń na podstawie tego, jak prawdopodobne jest, że dana zmiana ma zastosowanie do Rezon Bio
-(produkcja biologiczna, GxP/eQMS, rynki EU/PL/US/Kanada).
+Assess "probability" based on how likely the change is to apply to Rezon Bio (biological
+manufacturing, GxP/eQMS, EU/Poland/US/Canada markets).
 
-Jeśli nie wykryto żadnych istotnych zmian mieszczących się w wybranym okresie, zwróć pustą tablicę: []`;
+If no relevant changes within the selected period were detected, return an empty array: []`;
 }
 
 function extractJsonArray(raw: string): unknown {

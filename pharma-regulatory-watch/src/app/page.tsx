@@ -37,7 +37,7 @@ export default function Home() {
 
   const handleRevise = async () => {
     if (selectedIds.length === 0) {
-      setError('Zaznacz przynajmniej jedno źródło.');
+      setError('Select at least one source.');
       return;
     }
 
@@ -45,7 +45,7 @@ export default function Home() {
     setIsRevising(true);
     setResults([]);
     setStatuses([]);
-    setProgress({ index: 0, total: selectedIds.length, source: 'Inicjalizacja…' });
+    setProgress({ index: 0, total: selectedIds.length, source: 'Initializing…' });
 
     try {
       const res = await fetch('/api/revise', {
@@ -56,7 +56,7 @@ export default function Home() {
 
       if (!res.ok || !res.body) {
         const message = await res.text();
-        throw new Error(message || `Serwer zwrócił błąd ${res.status}`);
+        throw new Error(message || `Server returned an error ${res.status}`);
       }
 
       const reader = res.body.getReader();
@@ -105,7 +105,7 @@ export default function Home() {
       <header className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">Pharma Regulatory Watch</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Monitorowanie zmian w regulacjach prawnych przemysłu farmaceutycznego — Rezon Bio
+          Monitoring changes in pharmaceutical industry legal regulations — Rezon Bio
         </p>
       </header>
 
@@ -126,7 +126,7 @@ export default function Home() {
             disabled={isRevising}
             className="w-full rounded-md bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isRevising ? 'Trwa rewizja…' : 'Zrób rewizję'}
+            {isRevising ? 'Revision in progress…' : 'Run Revision'}
           </button>
 
           {isRevising && progress && (
@@ -134,7 +134,7 @@ export default function Home() {
               <div className="flex items-center gap-2">
                 <span className="h-4 w-4 flex-shrink-0 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
                 <span>
-                  Sprawdzam {progress.index}/{progress.total}: {progress.source}
+                  Checking {progress.index}/{progress.total}: {progress.source}
                 </span>
               </div>
             </div>
@@ -149,7 +149,7 @@ export default function Home() {
 
         <div className="space-y-6 lg:col-span-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-800">Wyniki rewizji</h2>
+            <h2 className="text-lg font-semibold text-slate-800">Revision Results</h2>
             <ExportButton
               results={results}
               period={period}

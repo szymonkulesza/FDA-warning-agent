@@ -4,7 +4,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Pharma Regulatory Watch — Rezon Bio',
   description:
-    'Monitoring zmian w regulacjach prawnych przemysłu farmaceutycznego dla Rezon Bio.',
+    'Monitoring changes in pharmaceutical industry legal regulations for Rezon Bio.',
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pl">
+    <html lang="en">
       <body>{children}</body>
     </html>
   );

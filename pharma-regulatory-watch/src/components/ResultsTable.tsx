@@ -12,9 +12,9 @@ const BADGE_STYLES: Record<Probability, string> = {
 };
 
 const BADGE_LABELS: Record<Probability, string> = {
-  high: 'Wysokie',
-  medium: 'Średnie',
-  low: 'Niskie',
+  high: 'High',
+  medium: 'Medium',
+  low: 'Low',
 };
 
 interface Props {
@@ -41,7 +41,7 @@ export function ResultsTable({ results }: Props) {
   if (results.length === 0) {
     return (
       <div className="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500 shadow-sm">
-        Brak wyników do wyświetlenia. Uruchom rewizję, aby zobaczyć wykryte zmiany regulacyjne.
+        No results to display yet. Run a revision to see detected regulatory changes.
       </div>
     );
   }
@@ -52,21 +52,21 @@ export function ResultsTable({ results }: Props) {
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
             <tr>
-              <th className="px-4 py-3 font-semibold">Krótki opis zmiany</th>
-              <th className="px-4 py-3 font-semibold">Źródło</th>
+              <th className="px-4 py-3 font-semibold">Short description</th>
+              <th className="px-4 py-3 font-semibold">Source</th>
               <th className="px-4 py-3 font-semibold">
                 <button
                   type="button"
                   onClick={cycleSort}
                   className="flex items-center gap-1 font-semibold hover:text-slate-900"
                 >
-                  Prawdopodobieństwo
+                  Probability
                   <span className="text-[10px]">
                     {sortDir === 'desc' ? '▼' : sortDir === 'asc' ? '▲' : '↕'}
                   </span>
                 </button>
               </th>
-              <th className="px-4 py-3 font-semibold">Interpretacja</th>
+              <th className="px-4 py-3 font-semibold">Interpretation</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">

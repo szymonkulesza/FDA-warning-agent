@@ -20,7 +20,7 @@ export function computeDefaultPeriod(preset: PeriodPreset = '3m'): PeriodSelecti
     preset,
     from: toIsoDate(from),
     to: toIsoDate(to),
-    label: preset === '1y' ? 'Ostatni rok' : 'Ostatnie 3 miesiące',
+    label: preset === '1y' ? 'Last year' : 'Last 3 months',
   };
 }
 
@@ -40,7 +40,7 @@ export function PeriodSelector({ period, onChange, disabled }: Props) {
         preset: 'custom',
         from: toIsoDate(from),
         to: toIsoDate(to),
-        label: 'Zakres własny',
+        label: 'Custom range',
       });
     } else {
       onChange(computeDefaultPeriod(preset));
@@ -49,13 +49,13 @@ export function PeriodSelector({ period, onChange, disabled }: Props) {
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="mb-3 text-sm font-semibold text-slate-700">Okres analizy</h2>
+      <h2 className="mb-3 text-sm font-semibold text-slate-700">Analysis period</h2>
       <div className="flex flex-wrap gap-2">
         {(
           [
-            { value: '3m', label: 'Ostatnie 3 miesiące' },
-            { value: '1y', label: 'Ostatni rok' },
-            { value: 'custom', label: 'Zakres własny' },
+            { value: '3m', label: 'Last 3 months' },
+            { value: '1y', label: 'Last year' },
+            { value: 'custom', label: 'Custom range' },
           ] as { value: PeriodPreset; label: string }[]
         ).map((opt) => (
           <button
@@ -77,27 +77,27 @@ export function PeriodSelector({ period, onChange, disabled }: Props) {
       {period.preset === 'custom' && (
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <label className="flex items-center gap-2 text-sm text-slate-600">
-            Od
+            From
             <input
               type="date"
               value={period.from}
               disabled={disabled}
               max={period.to}
               onChange={(e) =>
-                onChange({ ...period, from: e.target.value, label: 'Zakres własny' })
+                onChange({ ...period, from: e.target.value, label: 'Custom range' })
               }
               className="rounded-md border border-slate-300 px-2 py-1 text-sm disabled:opacity-50"
             />
           </label>
           <label className="flex items-center gap-2 text-sm text-slate-600">
-            Do
+            To
             <input
               type="date"
               value={period.to}
               disabled={disabled}
               min={period.from}
               onChange={(e) =>
-                onChange({ ...period, to: e.target.value, label: 'Zakres własny' })
+                onChange({ ...period, to: e.target.value, label: 'Custom range' })
               }
               className="rounded-md border border-slate-300 px-2 py-1 text-sm disabled:opacity-50"
             />
@@ -106,7 +106,7 @@ export function PeriodSelector({ period, onChange, disabled }: Props) {
       )}
 
       <p className="mt-2 text-xs text-slate-500">
-        Wybrany zakres: <span className="font-medium">{period.from}</span> —{' '}
+        Selected range: <span className="font-medium">{period.from}</span> —{' '}
         <span className="font-medium">{period.to}</span>
       </p>
     </div>

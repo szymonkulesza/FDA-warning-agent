@@ -17,7 +17,7 @@ export function SourceChecklist({ sources, selected, onToggle, onToggleAll, disa
     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-700">
-          Monitorowane źródła ({selectedCount}/{sources.length})
+          Monitored sources ({selectedCount}/{sources.length})
         </h2>
         <div className="flex gap-2 text-xs">
           <button
@@ -26,7 +26,7 @@ export function SourceChecklist({ sources, selected, onToggle, onToggleAll, disa
             onClick={() => onToggleAll(true)}
             className="text-brand-700 hover:underline disabled:opacity-50"
           >
-            Zaznacz wszystkie
+            Select all
           </button>
           <span className="text-slate-300">|</span>
           <button
@@ -35,7 +35,7 @@ export function SourceChecklist({ sources, selected, onToggle, onToggleAll, disa
             onClick={() => onToggleAll(false)}
             className="text-brand-700 hover:underline disabled:opacity-50"
           >
-            Odznacz wszystkie
+            Deselect all
           </button>
         </div>
       </div>
@@ -56,10 +56,10 @@ export function SourceChecklist({ sources, selected, onToggle, onToggleAll, disa
                 <span className="text-slate-500"> — {s.area}</span>
                 {s.requiresLogin && (
                   <span
-                    title="Wymaga logowania — może nie być dostępne do automatycznego skanowania"
+                    title="Requires login — may not be available for automatic scanning"
                     className="ml-1.5 inline-block rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700"
                   >
-                    wymaga logowania
+                    requires login
                   </span>
                 )}
               </span>
